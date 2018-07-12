@@ -1,0 +1,19 @@
+* {
+  /*outline: 1px solid #f00;*/
+  box-sizing: border-box;
+}
+
+.grid {
+  height: calc(100vh - 70px);
+}
+
+.grid > .row {
+  height: 25%;
+}
+
+.grid > .row > div {
+  /*display: flex;*/
+  align-items: center;
+  height: 100%;
+  justify-content: center;
+}
