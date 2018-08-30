@@ -38,6 +38,8 @@ class App extends React.Component {
       }
     }
     
+    this.audioRef = React.createRef();
+
   }
 
   async componentDidMount() {
@@ -82,7 +84,7 @@ class App extends React.Component {
 
 
   handleTick = () => {
-    console.log("tick!");
+    console.log("tick!", this.audioRef.current.currentTime );
     
   }
 
@@ -93,6 +95,8 @@ class App extends React.Component {
     this.setState({
       playback: pb
     });
+
+    this.audioRef.current.play()
 
     this.playbackTimer = setInterval(
       this.handleTick,
@@ -108,6 +112,8 @@ class App extends React.Component {
     this.setState({
       playback: pb
     });
+
+    this.audioRef.current.pause()
 
     clearInterval( this.playbackTimer );
 
@@ -134,10 +140,15 @@ class App extends React.Component {
           </footer>
 
 
-          <Controls audio_url = {this.state.audio_url}/>
+          <audio ref={this.audioRef} controls src={this.state.audio_url}>
+            Your browser does not support the <code>audio</code> element.
+          </audio>
+
+
         </Grid>
       </React.Fragment>
     );
+    
   }
 }
 
