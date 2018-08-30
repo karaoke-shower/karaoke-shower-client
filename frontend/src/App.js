@@ -21,6 +21,17 @@ class App extends React.Component {
     super(props);
     
     this.playbackTimer = null;
+    this.timeSyllables = {};
+    
+    this.hierarchyIndexTracker = {
+      hierarchyLevel: 0,
+      currentStanza: 0,
+      currentWord: 0,
+      currentVerse: 0,
+      currentSyllable: 0,
+    };
+
+
 
     this.state = {
       audio_url: '',
@@ -40,6 +51,9 @@ class App extends React.Component {
     
     this.audioRef = React.createRef();
 
+
+
+
   }
 
   async componentDidMount() {
@@ -53,16 +67,34 @@ class App extends React.Component {
         lyrics,
         audio_url
       });
+
+      this.flattenSongToArray(this.state.lyrics);
+
+      console.log(this.timeSyllables);
+      
+      
     } catch (e) {
       console.error(e);
     }
   }
 
-  recursive = (input) => {
-    console.log(input);
+  // recursive function:
+  flattenSongToArray = (input) => {
+    console.log( "hierarchy level: ", this.hierarchyIndexTracker )
     if (Array.isArray(input)) {
-      input.forEach(element => this.recursive(element));
+      input.forEach(element => {
+        this.flattenSongToArray(element)
+      });
+      this.hierarchyIndexTracker.hierarchyLevel++
+    } else {
+      this.timeSyllables[input.time] = {
+        text: input.text,
+        currentStanza: 0,
+        currentVerse: 0,
+        currentWord: 0,
+      };
     }
+
   }
 
   forward = () => {
@@ -77,15 +109,27 @@ class App extends React.Component {
     } = this.state;
 
     const current = lyrics[currentStanza][currentVerse][currentWord][currentSyllable];
-    console.log(current);
+    // console.log(current);
     // si el hijo es la último del padre actual -> cambia al siguiente padre y resetea current[hijo]
     // sino, escoge la siguiente hijo
   }
 
 
   handleTick = () => {
-    console.log("tick!", this.audioRef.current.currentTime );
-    
+    if( !! this.audioRef.current ) {
+      let currentTime = this.audioRef.current.currentTime;
+      let currentSyllable = this.timeSyllables[
+        this.findNearestKey( this.timeSyllables, Math.round( currentTime * 1000 ))
+      ]
+
+      let pb = this.state.playback;
+      pb.currentSyllable = currentSyllable;
+      this.setState({ playback: pb });
+
+      console.log(
+        "tesxt", currentSyllable.text
+      );
+    }
   }
 
 
@@ -100,7 +144,7 @@ class App extends React.Component {
 
     this.playbackTimer = setInterval(
       this.handleTick,
-      100
+      200
     );
 
   }
@@ -125,7 +169,6 @@ class App extends React.Component {
 
 
   render() {
-    // this.recursive(this.state.lyrics);
 
     return (
       <React.Fragment>
@@ -134,6 +177,11 @@ class App extends React.Component {
           <VerseInactive text = "Verso anterior"/>
           <VerseActive text = "Verso actual"/>
           <VerseInactive text = "Verso siguiente"/>
+
+          <h1>
+            {this.state.playback.currentSyllable.text}
+          </h1>
+
           <footer>
             <button onClick = {this.handlePlay}>Play</button>
             <button onClick = {this.handleStop}>Stop</button>
@@ -150,6 +198,22 @@ class App extends React.Component {
     );
     
   }
+
+  
+
+  findNearestKey = (array, time) => {
+    var prev = -1;
+    var i;
+    for (i in array) {
+        var n = parseInt(i);
+        if ((prev != -1) && (time < n))
+            return prev;
+        else 
+            prev = n;
+    }    
+  }
+
+
 }
 
 export default App;
