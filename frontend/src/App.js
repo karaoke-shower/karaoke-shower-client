@@ -78,9 +78,27 @@ class App extends React.Component {
     }
   }
 
+  getVerseWords( verse ) {
+    let text = "";
+
+    if( Array.isArray( verse ) ) {
+      verse.forEach( word => {
+        if( Array.isArray( word ) ) {
+          word.forEach( syllable => {
+            text += syllable.text;
+          })
+          text += " ";
+        }
+            
+      })
+    }
+
+    return text;
+
+  }
+
   // recursive function:
   flattenSongToArray = (input) => {
-    console.log( "hierarchy level: ", this.hierarchyIndexTracker )
 
     
     if (Array.isArray(input)) {
@@ -117,7 +135,6 @@ class App extends React.Component {
       }
 
     } else {
-      console.log(this.hierarchyIndexTracker.hierarchyLevel);
       
       this.timeSyllables[input.time] = {
         text: input.text,
@@ -134,22 +151,7 @@ class App extends React.Component {
 
   }
 
-  forward = () => {
-    const {
-      currentStanza,
-      currentWord,
-      currentVerse,
-      currentSyllable,
-      lyrics
-
-
-    } = this.state;
-
-    const current = lyrics[currentStanza][currentVerse][currentWord][currentSyllable];
-    // console.log(current);
-    // si el hijo es la último del padre actual -> cambia al siguiente padre y resetea current[hijo]
-    // sino, escoge la siguiente hijo
-  }
+  
 
 
   handleTick = () => {
@@ -163,9 +165,6 @@ class App extends React.Component {
       pb.currentSyllable = currentSyllable;
       this.setState({ playback: pb });
 
-      console.log(
-        "tesxt", currentSyllable
-      );
     }
   }
 
@@ -178,7 +177,7 @@ class App extends React.Component {
     });
 
     this.audioRef.current.play()
-    this.audioRef.current.playbackRate=5.0
+    this.audioRef.current.playbackRate=3.0
 
     this.playbackTimer = setInterval(
       this.handleTick,
@@ -206,6 +205,43 @@ class App extends React.Component {
   }
 
 
+
+  getCurrentSyllableText() {
+    if( !! this.state.playback.currentSyllable ) {
+      return this.state.playback.currentSyllable.text
+    } else {
+      return null;
+    }
+  }
+
+
+  getCurrentVerseText() {
+    if( !! this.state.playback.currentSyllable ) {
+
+      let currentStanza = this.state.lyrics[
+        this.state.playback.currentSyllable.stanza
+      ];
+
+      if( Array.isArray( currentStanza ) ) {
+        let currentVerse = currentStanza[
+          this.state.playback.currentSyllable.verse
+        ];
+        if( Array.isArray(currentVerse) ) {
+          return this.getVerseWords( currentVerse );
+        } else {
+          return null;
+        }
+      } else {
+        return null;
+      }
+    } else {
+      return null;
+    }
+
+  }
+
+
+
   render() {
 
     return (
@@ -217,9 +253,12 @@ class App extends React.Component {
           <VerseInactive text = "Verso siguiente"/>
 
           <h1>
-            {this.state.playback.currentSyllable.text}
+            {this.getCurrentSyllableText()}
           </h1>
-
+          <h2>
+            {this.getCurrentVerseText()}
+          </h2>
+          
           <footer>
             <button onClick = {this.handlePlay}>Play</button>
             <button onClick = {this.handleStop}>Stop</button>
@@ -244,7 +283,7 @@ class App extends React.Component {
     var i;
     for (i in array) {
         var n = parseInt(i);
-        if ((prev != -1) && (time < n))
+        if ((prev !== -1) && (time < n))
             return prev;
         else 
             prev = n;
