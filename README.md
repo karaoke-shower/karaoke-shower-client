@@ -1,3 +1,3 @@
 karaoke-shower-client
 
-[backend repository](https://github.com/furenku/karaoke-shower-backend)
+[backend repository](https://github.com/karaoke-shower/karaoke-shower-backend)
