@@ -4,12 +4,12 @@ import {
   Col,
 } from 'react-bootstrap';
 
-const Controls = () => (
+const Controls = (props) => (
   <Row>
     <Col xs={12} md={8}>
       <audio
         controls
-        src="https://raw.githubusercontent.com/karaoke-shower/karaoke-shower-client/development/sample-data/mp3/ca038.mp3"
+        src={props.audio_url}
         >
         Your browser does not support the <code>audio</code> element.
       </audio>
