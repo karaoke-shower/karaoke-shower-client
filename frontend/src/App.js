@@ -24,11 +24,12 @@ class App extends React.Component {
     this.timeSyllables = {};
     
     this.hierarchyIndexTracker = {
-      hierarchyLevel: 0,
+      hierarchyLevel: -1,
       currentStanza: 0,
       currentWord: 0,
       currentVerse: 0,
       currentSyllable: 0,
+      lastHierarchyLevel: 0
     };
 
 
@@ -70,7 +71,6 @@ class App extends React.Component {
 
       this.flattenSongToArray(this.state.lyrics);
 
-      console.log(this.timeSyllables);
       
       
     } catch (e) {
@@ -81,19 +81,56 @@ class App extends React.Component {
   // recursive function:
   flattenSongToArray = (input) => {
     console.log( "hierarchy level: ", this.hierarchyIndexTracker )
+
+    
     if (Array.isArray(input)) {
+      this.hierarchyIndexTracker.hierarchyLevel++
       input.forEach(element => {
         this.flattenSongToArray(element)
       });
-      this.hierarchyIndexTracker.hierarchyLevel++
+      this.hierarchyIndexTracker.hierarchyLevel--
+      switch( this.hierarchyIndexTracker.hierarchyLevel) {
+        case 0:
+          this.hierarchyIndexTracker.currentStanza++ 
+
+          this.hierarchyIndexTracker.currentVerse=0;
+          this.hierarchyIndexTracker.currentWord=0;
+          this.hierarchyIndexTracker.currentSyllable=0;
+
+          break;
+        case 1:
+          this.hierarchyIndexTracker.currentVerse++ 
+
+          this.hierarchyIndexTracker.currentWord=0;
+          this.hierarchyIndexTracker.currentSyllable=0;
+
+          break;        
+        case 2:
+          this.hierarchyIndexTracker.currentWord++ 
+
+          this.hierarchyIndexTracker.currentSyllable=0;
+
+          break;        
+        case 3:
+          this.hierarchyIndexTracker.currentSyllable++ 
+          break;        
+      }
+
     } else {
+      console.log(this.hierarchyIndexTracker.hierarchyLevel);
+      
       this.timeSyllables[input.time] = {
         text: input.text,
-        currentStanza: 0,
-        currentVerse: 0,
-        currentWord: 0,
+        stanza: this.hierarchyIndexTracker.currentStanza,
+        verse: this.hierarchyIndexTracker.currentVerse,
+        word: this.hierarchyIndexTracker.currentWord,
+
       };
+
     }
+
+    
+
 
   }
 
@@ -127,7 +164,7 @@ class App extends React.Component {
       this.setState({ playback: pb });
 
       console.log(
-        "tesxt", currentSyllable.text
+        "tesxt", currentSyllable
       );
     }
   }
@@ -141,6 +178,7 @@ class App extends React.Component {
     });
 
     this.audioRef.current.play()
+    this.audioRef.current.playbackRate=5.0
 
     this.playbackTimer = setInterval(
       this.handleTick,
