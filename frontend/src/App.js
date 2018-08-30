@@ -41,10 +41,12 @@ class App extends React.Component {
       playback: {
         currentTime: 0,
   
-        currentStanza: 0,
-        currentWord: 0,
-        currentVerse: 0,
         currentSyllable: 0,
+        
+        currentStanzaIndex: 0,
+        currentWordIndex: 0,
+        currentVerseIndex: 0,
+        currentSyllableIndex: 0,
   
         playing: false
       }
@@ -129,9 +131,8 @@ class App extends React.Component {
           this.hierarchyIndexTracker.currentSyllable=0;
 
           break;        
-        case 3:
-          this.hierarchyIndexTracker.currentSyllable++ 
-          break;        
+        // case 3:
+        //   break;        
       }
 
     } else {
@@ -141,8 +142,11 @@ class App extends React.Component {
         stanza: this.hierarchyIndexTracker.currentStanza,
         verse: this.hierarchyIndexTracker.currentVerse,
         word: this.hierarchyIndexTracker.currentWord,
+        syllableIndex: this.hierarchyIndexTracker.currentSyllable,
 
       };
+
+      this.hierarchyIndexTracker.currentSyllable++ 
 
     }
 
@@ -155,6 +159,7 @@ class App extends React.Component {
 
 
   handleTick = () => {
+
     if( !! this.audioRef.current ) {
       let currentTime = this.audioRef.current.currentTime;
       let currentSyllable = this.timeSyllables[
@@ -162,7 +167,16 @@ class App extends React.Component {
       ]
 
       let pb = this.state.playback;
+      
+      // console.log(currentSyllable);
+      
       pb.currentSyllable = currentSyllable;
+
+      pb.currentStanzaIndex = currentSyllable.stanza;
+      pb.currentVerseIndex = currentSyllable.verse;
+      pb.currentWordIndex = currentSyllable.word;
+      pb.currentSyllableIndex = currentSyllable.syllableIndex;
+      
       this.setState({ playback: pb });
 
     }
@@ -207,7 +221,9 @@ class App extends React.Component {
 
 
   getCurrentSyllableText() {
+    console.log(this.state.playback.currentSyllable);
     if( !! this.state.playback.currentSyllable ) {
+      
       return this.state.playback.currentSyllable.text
     } else {
       return null;
@@ -258,6 +274,22 @@ class App extends React.Component {
           <h2>
             {this.getCurrentVerseText()}
           </h2>
+          <h4>
+            Stanza:
+            {this.state.playback.currentStanzaIndex}
+          </h4>
+          <h4>
+            Verse:
+            {this.state.playback.currentVerseIndex}
+          </h4>
+          <h4>
+            Word
+            {this.state.playback.currentWordIndex}
+          </h4>
+          <h4>
+            Syllable
+            {this.state.playback.currentSyllableIndex}
+          </h4>
           
           <footer>
             <button onClick = {this.handlePlay}>Play</button>
