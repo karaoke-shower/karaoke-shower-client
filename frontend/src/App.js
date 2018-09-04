@@ -236,47 +236,73 @@ class App extends React.Component {
 
   }
 
-  getCurrentVerseText() {
-    if( !! this.state.playback.currentSyllable ) {
+  getVerse( stanza, verse ) {
 
-      let currentStanza = this.state.lyrics[
-        this.state.playback.currentSyllable.stanza
-      ];
+    if( Array.isArray(this.state.lyrics[stanza]) ) {
 
-      if( Array.isArray( currentStanza ) ) {
-        let currentVerse = currentStanza[
-          this.state.playback.currentSyllable.verse
-        ];
-        if( Array.isArray(currentVerse) ) {
-          return this.getVerseWords( currentVerse );
-        } else {
-          return null;
-        }
-      } else {
-        return null;
+      let currentStanza = this.state.lyrics[ stanza ];
+
+      let currentVerse = currentStanza[ verse ];
+
+      if( Array.isArray( currentVerse ) ) {
+        return currentVerse
       }
-    } else {
-      return null;
+
     }
+
+    return null;
 
   }
 
 
 
   render() {
-    let pastVerse = "";
-    let currentVerse = "";
-    let nextVerse = "";
+
+    let pastVerseText;
+    let currentVerseText;
+    let nextVerseText;
+
+    let currentSyllable = this.state.playback.currentSyllable;
     
-    currentVerse = this.getCurrentVerseText();
+    if( !! currentSyllable ) {
+
+      let currentVerse = this.getVerse( currentSyllable.stanza, currentSyllable.verse );
+
+      let pastVerse;
+      let nextVerse;
+
+      // check if first verse of stanza
+      if( currentSyllable.verse == 0 ) {
+        if( currentSyllable.stanza > 0 ) {
+
+          let lastStanza = currentSyllable.stanza - 1;
+          
+          if( Array.isArray( this.state.lyrics[ lastStanza ] )) {
+          
+            pastVerse = this.getVerse( lastStanza, this.state.lyrics[ lastStanza ].length - 1 );
+          
+          }
+          
+        }
+      } else {
+    
+        pastVerse = this.getVerse( currentSyllable.stanza, currentSyllable.verse - 1 );
+    
+      }
+
+      pastVerseText = this.getVerseWords( pastVerse );
+      currentVerseText = this.getVerseWords( currentVerse );
+      nextVerseText = this.getVerseWords( nextVerse );
+      
+    }  
     
     return (
       <React.Fragment>
         <Navbar/>
         <Grid className = "grid">
-          <VerseInactive text = "Verso anterior"/>
-          <VerseActive text = {currentVerse}/>
-          <VerseInactive text = "Verso siguiente"/>
+          <VerseInactive text = {pastVerseText}/>
+          <VerseActive text = {currentVerseText}/>
+          <VerseInactive text = {nextVerseText}/>
 
           <h1>
             {this.getCurrentSyllableText()}
