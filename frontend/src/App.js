@@ -271,6 +271,7 @@ class App extends React.Component {
       let pastVerse;
       let nextVerse;
 
+      // get past verse
       // check if first verse of stanza
       if( currentSyllable.verse == 0 ) {
         if( currentSyllable.stanza > 0 ) {
@@ -289,6 +290,23 @@ class App extends React.Component {
         pastVerse = this.getVerse( currentSyllable.stanza, currentSyllable.verse - 1 );
     
       }
+
+      // get next verse
+
+      if( currentSyllable.verse >= this.state.lyrics[currentSyllable.stanza].length - 1 ) {
+        if( currentSyllable.stanza < this.state.lyrics.length - 1 ) {
+         
+          nextVerse = this.getVerse( currentSyllable.stanza + 1, 0 );
+          
+        }
+      } else {
+
+        nextVerse = this.getVerse( currentSyllable.stanza, currentSyllable.verse + 1 );
+
+      }
+
+
+
 
       pastVerseText = this.getVerseWords( pastVerse );
       currentVerseText = this.getVerseWords( currentVerse );
