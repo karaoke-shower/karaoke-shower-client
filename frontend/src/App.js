@@ -217,7 +217,7 @@ class App extends React.Component {
   }
 
 
-  getVerseWords( verse ) {
+  getVerseText( verse ) {
     let text = "";
 
     if( Array.isArray( verse ) ) {
@@ -225,8 +225,8 @@ class App extends React.Component {
         if( Array.isArray( word ) ) {
           word.forEach( syllable => {
             text += syllable.text;
-          })
-          text += " ";
+          });
+          text += " ";          
         }
             
       })
@@ -235,6 +235,29 @@ class App extends React.Component {
     return text;
 
   }
+
+  getVerseWordsArray( verse ) {
+    let words = [];
+    
+    if( Array.isArray( verse ) ) {
+      verse.forEach( word => {
+        if( Array.isArray( word ) ) {
+          let syllables = [];
+
+          word.forEach( syllable => {
+            syllables.push( syllable.text );
+          });
+          
+          words.push( syllables );
+        }
+            
+      })
+    }
+
+    return words;
+
+  }
+
 
   getVerse( stanza, verse ) {
 
@@ -256,10 +279,13 @@ class App extends React.Component {
 
 
 
+
+
+
   render() {
 
     let pastVerseText;
-    let currentVerseText;
+    let currentVerseWordsArray;
     let nextVerseText;
 
     let currentSyllable = this.state.playback.currentSyllable;
@@ -308,9 +334,9 @@ class App extends React.Component {
 
 
 
-      pastVerseText = this.getVerseWords( pastVerse );
-      currentVerseText = this.getVerseWords( currentVerse );
-      nextVerseText = this.getVerseWords( nextVerse );
+      pastVerseText = this.getVerseText( pastVerse );
+      currentVerseWordsArray = this.getVerseWordsArray( currentVerse );
+      nextVerseText = this.getVerseText( nextVerse );
       
     }  
     
@@ -319,7 +345,11 @@ class App extends React.Component {
         <Navbar/>
         <Grid className = "grid">
           <VerseInactive text = {pastVerseText}/>
-          <VerseActive text = {currentVerseText}/>
+          <VerseActive
+          words = {currentVerseWordsArray}
+          currentWord={this.state.playback.currentWordIndex}
+          currentSyllable={this.state.playback.currentSyllableIndex}
+          />
           <VerseInactive text = {nextVerseText}/>
 
           <h1>
