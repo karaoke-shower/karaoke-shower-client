@@ -28,8 +28,7 @@ class App extends React.Component {
       currentStanza: 0,
       currentWord: 0,
       currentVerse: 0,
-      currentSyllable: 0,
-      lastHierarchyLevel: 0
+      currentSyllable: 0
     };
 
 
@@ -80,35 +79,21 @@ class App extends React.Component {
     }
   }
 
-  getVerseWords( verse ) {
-    let text = "";
-
-    if( Array.isArray( verse ) ) {
-      verse.forEach( word => {
-        if( Array.isArray( word ) ) {
-          word.forEach( syllable => {
-            text += syllable.text;
-          })
-          text += " ";
-        }
-            
-      })
-    }
-
-    return text;
-
-  }
 
   // recursive function:
   flattenSongToArray = (input) => {
 
     
     if (Array.isArray(input)) {
+      
       this.hierarchyIndexTracker.hierarchyLevel++
+      
       input.forEach(element => {
         this.flattenSongToArray(element)
       });
+      
       this.hierarchyIndexTracker.hierarchyLevel--
+      
       switch( this.hierarchyIndexTracker.hierarchyLevel) {
         case 0:
           this.hierarchyIndexTracker.currentStanza++ 
@@ -131,8 +116,7 @@ class App extends React.Component {
           this.hierarchyIndexTracker.currentSyllable=0;
 
           break;        
-        // case 3:
-        //   break;        
+         
       }
 
     } else {
@@ -161,23 +145,30 @@ class App extends React.Component {
   handleTick = () => {
 
     if( !! this.audioRef.current ) {
+
       let currentTime = this.audioRef.current.currentTime;
+      
       let currentSyllable = this.timeSyllables[
         this.findNearestKey( this.timeSyllables, Math.round( currentTime * 1000 ))
       ]
 
-      let pb = this.state.playback;
       
-      // console.log(currentSyllable);
-      
-      pb.currentSyllable = currentSyllable;
+      if( !! currentSyllable ) {
+        let pb = this.state.playback;
+        
+        pb.currentSyllable = currentSyllable;
 
-      pb.currentStanzaIndex = currentSyllable.stanza;
-      pb.currentVerseIndex = currentSyllable.verse;
-      pb.currentWordIndex = currentSyllable.word;
-      pb.currentSyllableIndex = currentSyllable.syllableIndex;
-      
-      this.setState({ playback: pb });
+        pb.currentStanzaIndex = currentSyllable.stanza;
+        pb.currentVerseIndex = currentSyllable.verse;
+        pb.currentWordIndex = currentSyllable.word;
+        pb.currentSyllableIndex = currentSyllable.syllableIndex;
+        
+        this.setState({ playback: pb });
+
+      }
+
+
+
 
     }
   }
@@ -191,11 +182,11 @@ class App extends React.Component {
     });
 
     this.audioRef.current.play()
-    this.audioRef.current.playbackRate=3.0
-
+    this.audioRef.current.playbackRate = 11.0;
+    
     this.playbackTimer = setInterval(
       this.handleTick,
-      200
+      100
     );
 
   }
@@ -214,22 +205,36 @@ class App extends React.Component {
 
   }
 
-  rewind() {
-
-  }
 
 
 
   getCurrentSyllableText() {
-    console.log(this.state.playback.currentSyllable);
-    if( !! this.state.playback.currentSyllable ) {
-      
+    if( !! this.state.playback.currentSyllable ) {      
       return this.state.playback.currentSyllable.text
     } else {
       return null;
     }
   }
 
+
+  getVerseWords( verse ) {
+    let text = "";
+
+    if( Array.isArray( verse ) ) {
+      verse.forEach( word => {
+        if( Array.isArray( word ) ) {
+          word.forEach( syllable => {
+            text += syllable.text;
+          })
+          text += " ";
+        }
+            
+      })
+    }
+
+    return text;
+
+  }
 
   getCurrentVerseText() {
     if( !! this.state.playback.currentSyllable ) {
@@ -259,20 +264,25 @@ class App extends React.Component {
 
 
   render() {
-
+    let pastVerse = "";
+    let currentVerse = "";
+    let nextVerse = "";
+    
+    currentVerse = this.getCurrentVerseText();
+    
     return (
       <React.Fragment>
         <Navbar/>
         <Grid className = "grid">
           <VerseInactive text = "Verso anterior"/>
-          <VerseActive text = "Verso actual"/>
+          <VerseActive text = {currentVerse}/>
           <VerseInactive text = "Verso siguiente"/>
 
           <h1>
             {this.getCurrentSyllableText()}
           </h1>
           <h2>
-            {this.getCurrentVerseText()}
+            
           </h2>
           <h4>
             Stanza:
@@ -283,11 +293,11 @@ class App extends React.Component {
             {this.state.playback.currentVerseIndex}
           </h4>
           <h4>
-            Word
+            Word:
             {this.state.playback.currentWordIndex}
           </h4>
           <h4>
-            Syllable
+            Syllable:
             {this.state.playback.currentSyllableIndex}
           </h4>
           
