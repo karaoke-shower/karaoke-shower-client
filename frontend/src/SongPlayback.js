@@ -3,7 +3,7 @@ import React from 'react';
 import {
     Grid
 } from 'react-bootstrap';
-import Controls from './Controls';
+
 import Navbar from './Navbar';
 import VerseActive from './VerseActive';
 import VerseInactive from './VerseInactive';
@@ -114,7 +114,10 @@ class SongPlayback extends React.Component {
 
           this.hierarchyIndexTracker.currentSyllable=0;
 
-          break;        
+          break;  
+          
+        default:
+            null
          
       }
 
@@ -298,7 +301,7 @@ class SongPlayback extends React.Component {
 
       // get past verse
       // check if first verse of stanza
-      if( currentSyllable.verse == 0 ) {
+      if( currentSyllable.verse === 0 ) {
         if( currentSyllable.stanza > 0 ) {
 
           let lastStanza = currentSyllable.stanza - 1;
