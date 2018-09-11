@@ -38,5 +38,22 @@
 
 .capture_player {
   position: absolute;
-  bottom: 0;
+}
+
+/*SongTextDisplay*/
+.text_result .stanza {
+
+  margin-bottom: 1rem;
+
+}
+
+.text_result .word {
+
+  margin-right: .5rem;
+  
+}
+
+.text_result .syllable {
+  outline: 1px solid grey;
+  font-size: 3rem;
 }

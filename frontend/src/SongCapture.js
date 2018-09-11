@@ -2,12 +2,16 @@ import React from 'react';
 import SongTextInput from './SongTextInput';
 import SongTextDisplay from './SongTextDisplay';
 
+import SyllableCapture from './SyllableCapture';
+
+
 const syllableSeparationCharacter = "·";
 
 class SongCapture extends React.Component {
     
     state = {
-        inputString: `Vie·nes ca·mi·nan·do
+        inputString:
+`Vie·nes ca·mi·nan·do
 y no sa·bes tu des·ti·no
 con·quis·tan·do sue·ños
 sue·ñas lle·gar a ser dei·dad
@@ -16,9 +20,11 @@ Si·gues ca·mi·nan·do
 so·bre vie·jos te·rri·to·rios
 in·vo·can·do fuer·zas
 que ja·más en·ten·de·rás`
-    
+    ,
+    capturingTime: false
     }
 
+    
     render = () => {
         return (
             <React.Fragment>
@@ -26,14 +32,24 @@ que ja·más en·ten·de·rás`
                     Song Capture
                 </h1>
 
-                <SongTextInput
-                value={this.state.inputString}
-                onChange={ (e) => this.handleChange(e) }
-                />
+                {
+                    ! this.state.capturingTime &&
+                    <SongTextInput
+                    value={this.state.inputString}
+                    onChange={ (e) => this.handleChange(e) }
+                    />
+                }
 
-                { this.drawSongText( this.parseSongText( this.state.inputString ) ) }
+                {
+                    this.state.capturingTime &&
+                    <h2>Capturar Tiempo</h2>
+                }
 
-                <SongTextDisplay/>
+                <button onClick={ () => this.prepareTimeCapture() }>
+                    Capturar Tiempos
+                </button>
+
+                <SongTextDisplay text={ this.drawSongText( this.parseSongText( this.state.inputString ) ) }/>
 
                 <footer className="capture_player">
                     <audio src="test.mp3" controls></audio>
@@ -44,20 +60,113 @@ que ja·más en·ten·de·rás`
     }
 
 
-    handleChange( event ) {
+    handleChange = ( event ) => {
+        
+        if( ! this.state.capturingTime ) {
+            
+            this.setState({
+                inputString: event.target.value
+            });
 
+        }
+        
+    }
+
+    prepareTimeCapture = () => {
         this.setState({
-            inputString: event.target.value
+            capturingTime: true
         });
-
     }
 
 
-    parseSongText( inputString ) {
+
+
+    drawSongText = ( songTextArray ) => {
+        
+        let html = songTextArray.map(stanza=>{
+            
+            let verses = stanza.map(verse=>{
+                let words = verse.map(word=>{
+                    let syllables = word.map(syllable=>{
+
+                        return (
+                            <SyllableCapture text={syllable}/>
+                        )
+                    })
+                    
+                    return (
+                        <span className="word">
+                            {syllables}
+                        </span>
+                    )
+                })
+                
+                return (
+                    <div className="verse">
+                        {words}
+                    </div>
+                )
+            })
+            return (
+                <div className="stanza">
+                    {verses}
+                </div>
+            )
+        });
+
+        return (
+            <React.Fragment>
+                {html}
+            </React.Fragment>
+        )
+
+
+    }
+
+    cleanString = ( inputString ) => {
+
+        let cleanString = inputString;
+
+        // 1. limpiar el string de secuencias
+        // con tres o más newLines \n
+        // convertirlas en \n\n, en caso de existir
+
+
+        // 2. limpiar el string de secuencias
+        // con dos o más espacios
+        // convertirlas en solo uno
+
+        return cleanString;
+
+    }
+
+    parseStanzas = ( inputString ) => {
+        let result = inputString.split("\n\n");
+        return result;
+    } 
+
+    parseVerses = ( inputString ) => {
+        let result = inputString.split("\n");
+        return result;
+    } 
+
+    parseWords = ( inputString ) => {
+        let result = inputString.split(" ");
+        return result;
+    } 
+
+    parseSyllables = ( inputString ) => {
+        let result = inputString.split( syllableSeparationCharacter );
+        return result;
+    }
+
+
+
+    parseSongText = ( inputString ) => {
 
         let result = [];
 
-        let stanzas = this.parseStanzas ( inputString );
+        let stanzas = this.parseStanzas ( this.cleanString( inputString ) );
         
         stanzas.forEach( stanza => {
 
@@ -99,44 +208,6 @@ que ja·más en·ten·de·rás`
 
     }
 
-    parseStanzas( inputString ) {
-        let result = [];
-
-        let newString = inputString;
-        
-        // 1. limpiar el string de secuencias
-        // con tres o más newLines \n
-        // convertirlas en \n\n, en caso de existir
-
-
-        // 2. separar string usando \n\n
-        
-        result = newString.split("\n\n");
-
-        return result;
-
-    } 
-
-    parseVerses( inputString ) {
-        let result = inputString.split("\n");
-        return result;
-    } 
-
-    parseWords( inputString ) {
-        let result = inputString.split(" ");
-        return result;
-    } 
-
-    parseSyllables( inputString ) {
-        let result = inputString.split( syllableSeparationCharacter );
-        return result;
-    }
-
-    drawSongText( songTextArray ) {
-
-        return <h1>{songTextArray}</h1>
-
-    }
 
 
 }
