@@ -34,3 +34,9 @@
 .text_input .separator {
   color: red;
 }
+
+
+.capture_player {
+  position: absolute;
+  bottom: 0;
+}

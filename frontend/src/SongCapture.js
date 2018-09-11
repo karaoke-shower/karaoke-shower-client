@@ -3,6 +3,10 @@ import SongTextInput from './SongTextInput';
 import SongTextDisplay from './SongTextDisplay';
 
 class SongCapture extends React.Component {
+    
+    state = {
+        inputString: ''
+    }
 
     render = () => {
         return (
@@ -11,12 +15,27 @@ class SongCapture extends React.Component {
                     Song Capture
                 </h1>
 
-                <SongTextInput/>
+                <SongTextInput
+                value={this.state.inputString}
+                onChange={ (e) => this.handleChange(e) }
+                />
                 <SongTextDisplay/>
 
+                <footer className="capture_player">
+                    <audio src="test.mp3" controls></audio>
+                </footer>
                 
             </React.Fragment>
         )
+    }
+
+
+    handleChange( event ) {
+
+        this.setState({
+            inputString: event.target.value
+        });
+
     }
 
 }

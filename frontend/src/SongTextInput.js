@@ -1,8 +1,6 @@
 import React from 'react';
 
-class SongTextInput extends React.Component {
-
-    render = () => {
+const SongTextInput = (props) => {
         return (
             <React.Fragment>
                 
@@ -10,11 +8,13 @@ class SongTextInput extends React.Component {
                     Song Text Input
                 </h4>
 
-                <textarea placeholder="Song text here"></textarea>
-
+                <textarea
+                placeholder="Song text here"
+                onChange={props.onChange}
+                value={props.value}
+                />
             </React.Fragment>
         )
-    }
 
 }
 
