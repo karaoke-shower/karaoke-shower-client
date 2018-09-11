@@ -7,7 +7,16 @@ const syllableSeparationCharacter = "·";
 class SongCapture extends React.Component {
     
     state = {
-        inputString: ''
+        inputString: `Vie·nes ca·mi·nan·do
+y no sa·bes tu des·ti·no
+con·quis·tan·do sue·ños
+sue·ñas lle·gar a ser dei·dad
+
+Si·gues ca·mi·nan·do
+so·bre vie·jos te·rri·to·rios
+in·vo·can·do fuer·zas
+que ja·más en·ten·de·rás`
+    
     }
 
     render = () => {
@@ -46,30 +55,46 @@ class SongCapture extends React.Component {
 
     parseSongText( inputString ) {
 
+        let result = [];
+
         let stanzas = this.parseStanzas ( inputString );
         
         stanzas.forEach( stanza => {
+
+            let stanzaArray = [];
+
             let verses = this.parseVerses( stanza )
+            
             verses.forEach( verse => {
+
+                let verseArray = [];
+
                 let words = this.parseWords( verse )
 
                 words.forEach( word => {
+                    
+                    let wordArray = [];
+
                     let syllables = this.parseSyllables( word )
                     
                     syllables.forEach( syllable => {
-                        console.log( syllable )
+                        
+                        wordArray.push( syllable );
+
                     });
+
+                    verseArray.push( wordArray );
         
                 });
 
-                
+                stanzaArray.push( verseArray );
             });
+
+            result.push( stanzaArray );
     
         });
-
         
-        let result = [];
-
+        
         return result
 
     }
