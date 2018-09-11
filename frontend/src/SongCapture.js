@@ -23,7 +23,9 @@ so·bre vie·jos te·rri·to·rios
 in·vo·can·do fuer·zas
 que ja·más en·ten·de·rás`
     ,
-    capturingTime: false
+    capturingTime: false,
+    songTextArray: [],
+    currentSyllable: null
     }
 
     
@@ -31,7 +33,7 @@ que ja·más en·ten·de·rás`
         return (
             <React.Fragment>
                 <h1>
-                    Song Capture
+                    Song Capture {this.state.songTextArray.length}
                 </h1>
 
                 {
@@ -46,7 +48,12 @@ que ja·más en·ten·de·rás`
                     this.state.capturingTime &&
                     <React.Fragment>
                         <h2>Capturar Tiempo</h2>
-                        <SyllableTimeDialog/>
+                        <SyllableTimeDialog
+                        {...this.state.currentSyllable}
+                        currentSyllable={this.state.currentSyllable}
+                        onMinuteChange={ (e) => this.handleMinuteChange(e) }
+                        onSecondChange={ (e) => this.handleSecondChange(e) }
+                        />
                     </React.Fragment>
                 }
 
@@ -54,7 +61,7 @@ que ja·más en·ten·de·rás`
                     Capturar Tiempos
                 </button>
 
-                <SongTextDisplay text={ this.drawSongText( this.parseSongText( this.state.inputString ) ) }/>
+                <SongTextDisplay text={ this.drawSongText( this.state.songTextArray ) }/>
 
                 <footer className="capture_player">
                     <audio src="test.mp3" controls></audio>
@@ -70,7 +77,8 @@ que ja·más en·ten·de·rás`
         if( ! this.state.capturingTime ) {
             
             this.setState({
-                inputString: event.target.value
+                inputString: event.target.value,
+                songTextArray: this.parseSongText( event.target.value )
             });
 
         }
@@ -86,17 +94,72 @@ que ja·más en·ten·de·rás`
 
     handleSyllableClick = ( e ) => {
         
-        console.log(
-            e.target.attributes.stanza.value,
-            e.target.attributes.verse.value,
-            e.target.attributes.word.value,
-            e.target.attributes.syllable.value,
-            e.target.innerHTML
-        )
-        
+        let stanza      = e.target.attributes.stanza.value;
+        let verse       = e.target.attributes.verse.value;
+        let word        = e.target.attributes.word.value;
+        let syllable    = e.target.attributes.syllable.value;
+        let text        = e.target.innerHTML
+        let time        = this.state.songTextArray[stanza][verse][word][syllable].time;
+
+
+        let syllableObject = {
+            stanza,
+            verse,
+            word,
+            syllable,
+            text,
+            time,
+        }
+
+        this.setState({
+            currentSyllable: syllableObject 
+        })
+            
+
     }
 
+    handleMinuteChange = (e) => {
 
+        let value = e.target.value
+
+        console.log("minutes changed",value);
+        
+        let currentSyllable = Object.assign( {}, this.state.currentSyllable )
+        let time = currentSyllable.time;
+        let seconds = (time / 1000) % 60;
+        let minutes = value;
+        let newTime = ((minutes*60)*1000)
+        newTime += (seconds*1000)
+        
+        currentSyllable.time = newTime;
+        console.log("time", newTime);
+        
+        console.warn( "revisar ambito de this!!" )
+        this.setState({
+            currentSyllable: currentSyllable
+        })
+
+    }
+    handleSecondChange = (e) => {
+        let value = e.target.value
+
+        console.log("seconds changed",value);
+        
+        let currentSyllable = Object.assign( {}, this.state.currentSyllable)
+        let time = currentSyllable.time;
+        let seconds = value;
+        let minutes = Math.floor(time / 60000);
+        let newTime = ((minutes*60)*1000)
+        newTime += (seconds*1000)
+        
+        currentSyllable.time = newTime;
+            console.log("time", newTime);
+        
+        console.warn( "revisar ambito de this!!" )
+            this.setState({
+            currentSyllable: currentSyllable
+        })
+    }
 
     drawSongText = ( songTextArray ) => {
         
@@ -109,7 +172,7 @@ que ja·más en·ten·de·rás`
                         return (
                             <SyllableCapture
                             key={ `${i}-${j}-${k}-${l}` }
-                            text={syllable}
+                            text={syllable.text}
                             stanza={i}
                             verse={j}
                             word={k}
@@ -220,7 +283,10 @@ que ja·más en·ten·de·rás`
                     
                     syllables.forEach( syllable => {
                         
-                        wordArray.push( syllable );
+                        wordArray.push({
+                            text: syllable
+                            , time: 0
+                        });
 
                     });
 
