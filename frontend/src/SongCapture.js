@@ -122,20 +122,17 @@ que ja·más en·ten·de·rás`
 
         let value = e.target.value
 
-        console.log("minutes changed",value);
-        
-        let currentSyllable = Object.assign( {}, this.state.currentSyllable )
+        let currentSyllable = this.state.currentSyllable;
         let time = currentSyllable.time;
         let seconds = (time / 1000) % 60;
         let minutes = value;
         let newTime = ((minutes*60)*1000)
         newTime += (seconds*1000)
-        
         currentSyllable.time = newTime;
-        console.log("time", newTime);
-        
-        console.warn( "revisar ambito de this!!" )
+        let songTextArray = this.state.songTextArray;
+        songTextArray[ currentSyllable.stanza ][currentSyllable.verse][currentSyllable.word][currentSyllable.syllable].time = newTime;
         this.setState({
+            songTextArray: songTextArray,
             currentSyllable: currentSyllable
         })
 
@@ -143,9 +140,7 @@ que ja·más en·ten·de·rás`
     handleSecondChange = (e) => {
         let value = e.target.value
 
-        console.log("seconds changed",value);
-        
-        let currentSyllable = Object.assign( {}, this.state.currentSyllable)
+        let currentSyllable = this.state.currentSyllable;
         let time = currentSyllable.time;
         let seconds = value;
         let minutes = Math.floor(time / 60000);
@@ -153,12 +148,13 @@ que ja·más en·ten·de·rás`
         newTime += (seconds*1000)
         
         currentSyllable.time = newTime;
-            console.log("time", newTime);
-        
-        console.warn( "revisar ambito de this!!" )
-            this.setState({
-            currentSyllable: currentSyllable
+        let songTextArray = this.state.songTextArray;
+        songTextArray[ currentSyllable.stanza ][currentSyllable.verse][currentSyllable.word][currentSyllable.syllable].time = newTime;
+        this.setState({
+            songTextArray: songTextArray,
+            currentSyllable: currentSyllable        
         })
+
     }
 
     drawSongText = ( songTextArray ) => {
