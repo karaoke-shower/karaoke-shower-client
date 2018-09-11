@@ -17,3 +17,20 @@
   height: 100%;
   justify-content: center;
 }
+
+
+
+
+.text_input .word {
+  float: left;
+  padding-right: .5rem;
+}
+
+.text_input .syllable, .text_input .separator {
+  width: auto;
+  float: left;
+}
+
+.text_input .separator {
+  color: red;
+}
