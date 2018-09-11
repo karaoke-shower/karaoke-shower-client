@@ -1,3 +1,4 @@
 karaoke-shower-client
 
-[backend repository](https://github.com/karaoke-shower/karaoke-shower-backend)
+- [Demo](https://karaoke-shower.herokuapp.com/)
+- [backend repository](https://github.com/karaoke-shower/karaoke-shower-backend)
