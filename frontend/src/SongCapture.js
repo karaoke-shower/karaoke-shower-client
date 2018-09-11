@@ -2,6 +2,8 @@ import React from 'react';
 import SongTextInput from './SongTextInput';
 import SongTextDisplay from './SongTextDisplay';
 
+import SyllableTimeDialog from './SyllableTimeDialog';
+
 import SyllableCapture from './SyllableCapture';
 
 
@@ -42,7 +44,10 @@ que ja·más en·ten·de·rás`
 
                 {
                     this.state.capturingTime &&
-                    <h2>Capturar Tiempo</h2>
+                    <React.Fragment>
+                        <h2>Capturar Tiempo</h2>
+                        <SyllableTimeDialog/>
+                    </React.Fragment>
                 }
 
                 <button onClick={ () => this.prepareTimeCapture() }>
@@ -81,7 +86,13 @@ que ja·más en·ten·de·rás`
 
     handleSyllableClick = ( e ) => {
         
-        console.log(e.target.innerHTML)
+        console.log(
+            e.target.attributes.stanza.value,
+            e.target.attributes.verse.value,
+            e.target.attributes.word.value,
+            e.target.attributes.syllable.value,
+            e.target.innerHTML
+        )
         
     }
 
@@ -99,6 +110,10 @@ que ja·más en·ten·de·rás`
                             <SyllableCapture
                             key={ `${i}-${j}-${k}-${l}` }
                             text={syllable}
+                            stanza={i}
+                            verse={j}
+                            word={k}
+                            syllable={l}
                             onClick={(e)=>this.handleSyllableClick(e)}
                             />
                         )
