@@ -79,36 +79,53 @@ que ja·más en·ten·de·rás`
     }
 
 
+    handleSyllableClick = ( e ) => {
+        
+        console.log(e.target.innerHTML)
+        
+    }
+
 
 
     drawSongText = ( songTextArray ) => {
         
-        let html = songTextArray.map(stanza=>{
+        let html = songTextArray.map((stanza,i)=>{
             
-            let verses = stanza.map(verse=>{
-                let words = verse.map(word=>{
-                    let syllables = word.map(syllable=>{
+            let verses = stanza.map((verse,j)=>{
+                let words = verse.map((word,k)=>{
+                    let syllables = word.map((syllable,l)=>{
 
                         return (
-                            <SyllableCapture text={syllable}/>
+                            <SyllableCapture
+                            key={ `${i}-${j}-${k}-${l}` }
+                            text={syllable}
+                            onClick={(e)=>this.handleSyllableClick(e)}
+                            />
                         )
                     })
                     
                     return (
-                        <span className="word">
+                        <span
+                        key={ `${i}-${j}-${k}` }
+                        className="word"
+                        >
                             {syllables}
                         </span>
                     )
                 })
                 
                 return (
-                    <div className="verse">
+                    <div
+                    key={ `${i}-${j}` }
+                    className="verse">
                         {words}
                     </div>
                 )
             })
             return (
-                <div className="stanza">
+                <div
+                key={ `${i}` }
+                className="stanza">
                     {verses}
                 </div>
             )
