@@ -9,7 +9,7 @@ const SongTextInput = (props) => {
                 </h4>
 
                 <textarea
-                placeholder="Song text here"
+                placeholder={props.placeholder}
                 onChange={props.onChange}
                 value={props.value}
                 />

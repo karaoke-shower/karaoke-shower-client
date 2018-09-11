@@ -7,13 +7,7 @@ import SyllableTimeDialog from './SyllableTimeDialog';
 import SyllableCapture from './SyllableCapture';
 
 
-const syllableSeparationCharacter = "·";
-
-class SongCapture extends React.Component {
-    
-    state = {
-        inputString:
-`Vie·nes ca·mi·nan·do
+const sampleLyrics = `Vie·nes ca·mi·nan·do
 y no sa·bes tu des·ti·no
 con·quis·tan·do sue·ños
 sue·ñas lle·gar a ser dei·dad
@@ -21,13 +15,24 @@ sue·ñas lle·gar a ser dei·dad
 Si·gues ca·mi·nan·do
 so·bre vie·jos te·rri·to·rios
 in·vo·can·do fuer·zas
-que ja·más en·ten·de·rás`
-    ,
-    capturingTime: false,
-    songTextArray: [],
-    currentSyllable: null
+que ja·más en·ten·de·rás`;
+
+const syllableSeparationCharacter = "·";
+
+class SongCapture extends React.Component {
+    
+    state = {
+        inputString: '',
+        capturingTime: false,
+        songTextArray: [],
+        currentSyllable: {}
     }
 
+    constructor(props) {
+        super(props);
+        this.copyButton = React.createRef();
+        this.sampleText = React.createRef();
+    }
     
     render = () => {
         return (
@@ -38,10 +43,23 @@ que ja·más en·ten·de·rás`
 
                 {
                     ! this.state.capturingTime &&
-                    <SongTextInput
-                    value={this.state.inputString}
-                    onChange={ (e) => this.handleChange(e) }
-                    />
+                    <React.Fragment>
+                        <SongTextInput
+                        value={this.state.inputString}
+                        placeholder={sampleLyrics}
+                        onChange={ (e) => this.handleChange(e) }
+                        />
+                        <button ref={this.copyButton} onClick={()=>this.copySampleLyrics()}>
+                            Copiar letra de prueba
+                        </button>
+                        <textarea
+                        ref={this.sampleText}
+                        style={{opacity:0, pointerEvents:'none'}}
+                        >
+                            {sampleLyrics}
+                        </textarea>
+                        
+                    </React.Fragment>
                 }
 
                 {
@@ -302,6 +320,19 @@ que ja·más en·ten·de·rás`
 
     }
 
+
+    copySampleLyrics = () => {
+
+        
+        let copyText = this.sampleText.current;        
+        
+        copyText.select();
+      
+        document.execCommand("copy");
+
+        this.copyButton.current.innerHTML="Letra copiada. Pegar arriba"
+
+    }
 
 
 }
