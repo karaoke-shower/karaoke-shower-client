@@ -1,6 +1,6 @@
 import React from 'react';
 
-const SyllableCapture = (props) => {
+const SyllableButton = (props) => {
 
     return (
         <span
@@ -16,4 +16,4 @@ const SyllableCapture = (props) => {
 
 }
 
-export default SyllableCapture;
+export default SyllableButton;

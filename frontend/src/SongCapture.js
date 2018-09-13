@@ -1,10 +1,15 @@
 import React from 'react';
+
 import SongTextInput from './SongTextInput';
+
 import SongTextDisplay from './SongTextDisplay';
 
 import SyllableTimeDialog from './SyllableTimeDialog';
 
-import SyllableCapture from './SyllableCapture';
+import SyllableButton from './SyllableButton';
+
+
+const syllableSeparationCharacter = "·";
 
 
 const sampleLyrics = `Vie·nes ca·mi·nan·do
@@ -17,7 +22,6 @@ so·bre vie·jos te·rri·to·rios
 in·vo·can·do fuer·zas
 que ja·más en·ten·de·rás`;
 
-const syllableSeparationCharacter = "·";
 
 class SongCapture extends React.Component {
     
@@ -47,7 +51,7 @@ class SongCapture extends React.Component {
                         <SongTextInput
                         value={this.state.inputString}
                         placeholder={sampleLyrics}
-                        onChange={ (e) => this.handleChange(e) }
+                        onChange={ (e) => this.handleSongInputChange(e) }
                         />
                         <button ref={this.copyButton} onClick={()=>this.copySampleLyrics()}>
                             Copiar letra de prueba
@@ -90,7 +94,7 @@ class SongCapture extends React.Component {
     }
 
 
-    handleChange = ( event ) => {
+    handleSongInputChange = ( event ) => {
         
         if( ! this.state.capturingTime ) {
             
@@ -149,9 +153,10 @@ class SongCapture extends React.Component {
         currentSyllable.time = newTime;
         let songTextArray = this.state.songTextArray;
         songTextArray[ currentSyllable.stanza ][currentSyllable.verse][currentSyllable.word][currentSyllable.syllable].time = newTime;
+        
         this.setState({
-            songTextArray: songTextArray,
-            currentSyllable: currentSyllable
+            songTextArray,
+            currentSyllable
         })
 
     }
@@ -169,8 +174,8 @@ class SongCapture extends React.Component {
         let songTextArray = this.state.songTextArray;
         songTextArray[ currentSyllable.stanza ][currentSyllable.verse][currentSyllable.word][currentSyllable.syllable].time = newTime;
         this.setState({
-            songTextArray: songTextArray,
-            currentSyllable: currentSyllable        
+            songTextArray,
+            currentSyllable        
         })
 
     }
@@ -184,7 +189,7 @@ class SongCapture extends React.Component {
                     let syllables = word.map((syllable,l)=>{
 
                         return (
-                            <SyllableCapture
+                            <SyllableButton
                             key={ `${i}-${j}-${k}-${l}` }
                             text={syllable.text}
                             stanza={i}
@@ -239,12 +244,20 @@ class SongCapture extends React.Component {
         // 1. limpiar el string de secuencias
         // con tres o más newLines \n
         // convertirlas en \n\n, en caso de existir
+        while( cleanString.includes("\n\n\n") ) {
+            cleanString = cleanString.replace("\n\n\n","\n\n")
+        }
 
-
+        
         // 2. limpiar el string de secuencias
         // con dos o más espacios
         // convertirlas en solo uno
-
+        
+        while( cleanString.includes("  ") ) {
+            cleanString = cleanString.replace("  "," ")
+        }
+        
+        
         return cleanString;
 
     }
