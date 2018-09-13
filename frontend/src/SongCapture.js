@@ -42,7 +42,7 @@ class SongCapture extends React.Component {
         return (
             <React.Fragment>
                 <h1>
-                    Song Capture {this.state.songTextArray.length}
+                    Song Capture
                 </h1>
 
                 {
@@ -170,6 +170,9 @@ class SongCapture extends React.Component {
         let newTime = ((minutes*60)*1000)
         newTime += (seconds*1000)
         
+        newTime = Math.round(newTime * 100);
+        newTime = newTime / 100;
+        
         currentSyllable.time = newTime;
         let songTextArray = this.state.songTextArray;
         songTextArray[ currentSyllable.stanza ][currentSyllable.verse][currentSyllable.word][currentSyllable.syllable].time = newTime;
@@ -244,6 +247,7 @@ class SongCapture extends React.Component {
         // 1. limpiar el string de secuencias
         // con tres o más newLines \n
         // convertirlas en \n\n, en caso de existir
+
         while( cleanString.includes("\n\n\n") ) {
             cleanString = cleanString.replace("\n\n\n","\n\n")
         }

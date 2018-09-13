@@ -11,18 +11,22 @@ const SyllableTimeDialog = (props) => {
                 </div>
                 <div className="time">
                     <input
+                    type="number"
+                    step="1"
                     className="minutes"
                     name="minutes"
                     placeholder="00"
-                    value={Math.floor(props.time/60000)}
+                    value={!!props.time ? Math.floor(props.time/60000) : 0 }
                     onChange={props.onMinuteChange}
                     />
                     :
                     <input
+                    type="number"
+                    step=".01"
                     className="seconds"
                     name="seconds"
                     placeholder="00"
-                    value={(props.time/1000)%60}
+                    value={!!props.time ? (props.time/1000)%60 : 0 }
                     onChange={props.onSecondChange}
                     />
                 </div>
