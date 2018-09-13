@@ -3,6 +3,7 @@ import React from 'react';
 import SongTextInput from './SongTextInput';
 
 import SongTextDisplay from './SongTextDisplay';
+import SongTextSyllableSelector from './SongTextSyllableSelector';
 
 import SyllableTimeDialog from './SyllableTimeDialog';
 
@@ -29,11 +30,13 @@ class SongCapture extends React.Component {
         inputString: '',
         capturingTime: false,
         songTextArray: [],
-        currentSyllable: {}
+        currentSyllable: {},
+        currentTime: 0
     }
 
     constructor(props) {
         super(props);
+        this.audioRef = React.createRef();
         this.copyButton = React.createRef();
         this.sampleText = React.createRef();
     }
@@ -44,6 +47,8 @@ class SongCapture extends React.Component {
                 <h1>
                     Song Capture
                 </h1>
+
+                { this.state.currentTime}
 
                 {
                     ! this.state.capturingTime &&
@@ -56,6 +61,12 @@ class SongCapture extends React.Component {
                         <button ref={this.copyButton} onClick={()=>this.copySampleLyrics()}>
                             Copiar letra de prueba
                         </button>
+
+
+                        <button onClick={ () => this.prepareTimeCapture() }>
+                            Capturar Tiempos
+                        </button>
+                        
                         <textarea
                         ref={this.sampleText}
                         style={{opacity:0, pointerEvents:'none'}}
@@ -63,6 +74,8 @@ class SongCapture extends React.Component {
                             {sampleLyrics}
                         </textarea>
                         
+                        <SongTextDisplay text={ this.createSyllableButtons( this.state.songTextArray ) }/>
+
                     </React.Fragment>
                 }
 
@@ -70,28 +83,63 @@ class SongCapture extends React.Component {
                     this.state.capturingTime &&
                     <React.Fragment>
                         <h2>Capturar Tiempo</h2>
+                        <button onClick={()=>this.captureTime()}>Capturar</button>
+                        <button onClick={()=>this.selectNext()}>Sig.</button>
+                        <button onClick={()=>this.selectPrevious()}>Ant.</button>
                         <SyllableTimeDialog
                         {...this.state.currentSyllable}
                         currentSyllable={this.state.currentSyllable}
                         onMinuteChange={ (e) => this.handleMinuteChange(e) }
                         onSecondChange={ (e) => this.handleSecondChange(e) }
                         />
+                        <SongTextSyllableSelector text={ this.createSyllableButtons( this.state.songTextArray ) }/>
+
                     </React.Fragment>
                 }
 
-                <button onClick={ () => this.prepareTimeCapture() }>
-                    Capturar Tiempos
-                </button>
 
-                <SongTextDisplay text={ this.drawSongText( this.state.songTextArray ) }/>
 
                 <footer className="capture_player">
-                    <audio src="test.mp3" controls></audio>
+
+                    <button onClick={()=>this.handlePlay()}>Play</button>
+                    <audio ref={this.audioRef} controls src="http://www.cri-cri.net/mp3/ca038.mp3">
+                        Your browser does not support the <code>audio</code> element.
+                    </audio>
+
                 </footer>
                 
             </React.Fragment>
         )
     }
+
+
+
+
+  handlePlay = () => {
+
+
+    this.audioRef.current.play()
+
+    this.playbackTimer = setInterval(
+      this.handleTick,
+      100
+    );
+
+  }
+
+
+
+  handleTick = () => {
+
+    if( !! this.audioRef.current ) {
+
+        let currentTime = this.audioRef.current.currentTime;
+      
+        this.setState({ currentTime });
+
+    }
+  }
+
 
 
     handleSongInputChange = ( event ) => {
@@ -133,12 +181,184 @@ class SongCapture extends React.Component {
             time,
         }
 
-        this.setState({
-            currentSyllable: syllableObject 
-        })
+        this.handleCurrentSyllableSelect( syllableObject );
             
 
     }
+
+
+
+    selectPrevious = () => {
+        let songTextArray = this.state.songTextArray;
+        let currentSyllable = this.state.currentSyllable;
+
+        let stanzaIndex = currentSyllable.stanza;
+        let verseIndex = currentSyllable.verse;
+        let wordIndex = currentSyllable.word;
+        let syllableIndex = currentSyllable.syllable;
+
+        if( ( syllableIndex- 1) < 0 ) {
+
+            if( ( wordIndex- 1) < 0 ) {
+                
+                if( ( verseIndex- 1) < 0 ) {
+                    if( ( stanzaIndex- 1) < 0 ) {
+                        stanzaIndex=songTextArray.length-1;
+                    } else {
+                        stanzaIndex--;
+                    }
+                    verseIndex=songTextArray[stanzaIndex].length-1;
+                } else {
+                    verseIndex--;
+
+                }
+
+                wordIndex=songTextArray[stanzaIndex][verseIndex].length-1;
+            } else {
+                wordIndex--;
+
+            }
+
+            
+            syllableIndex=songTextArray[stanzaIndex][verseIndex][wordIndex].length-1;
+        } else {
+            syllableIndex--;
+        }
+
+        let newCurrentSyllable = songTextArray[stanzaIndex][verseIndex][wordIndex][syllableIndex];
+        let text = newCurrentSyllable.text;
+        let time = newCurrentSyllable.time;
+        let syllableObject = {
+            stanza: stanzaIndex,
+            verse: verseIndex,
+            word: wordIndex,
+            syllable: syllableIndex,
+            text: newCurrentSyllable.text,
+            time: newCurrentSyllable.time,
+        };
+
+        
+        this.handleCurrentSyllableSelect( syllableObject );
+        
+    }
+
+    captureTime = () => {
+        
+        let currentSyllable = this.state.currentSyllable;
+        let songTextArray = this.state.songTextArray;
+
+        let currentSyllableObject = 
+        songTextArray
+        [currentSyllable.stanza]
+        [currentSyllable.verse]
+        [currentSyllable.word]
+        [currentSyllable.syllable];
+
+        if( !! currentSyllableObject ) {
+
+            currentSyllableObject.time = (this.state.currentTime)*1000;
+            
+        } 
+
+        this.selectNext()
+
+    }
+
+    selectNext = () => {
+        let songTextArray = this.state.songTextArray;
+        let currentSyllable = this.state.currentSyllable;
+
+        let stanzaIndex = currentSyllable.stanza;
+        let verseIndex = currentSyllable.verse;
+        let wordIndex = currentSyllable.word;
+        let syllableIndex = currentSyllable.syllable;
+
+        if( (syllableIndex + 1) >= songTextArray[stanzaIndex][verseIndex][wordIndex].length ) {
+            
+            syllableIndex=0;
+            
+            if( (wordIndex + 1) >= songTextArray[stanzaIndex][verseIndex].length ) {
+
+                wordIndex=0;
+
+                if( (verseIndex + 1) >= songTextArray[stanzaIndex].length ) {
+                    
+                    verseIndex=0;
+
+                    if( (stanzaIndex + 1) >= songTextArray.length ) {
+                        verseIndex=0;
+                    } else {
+                        stanzaIndex++
+                    }
+
+                } else {
+                    verseIndex++
+                }
+
+            } else {
+                wordIndex++
+            }
+
+        } else {
+            syllableIndex++
+        }
+
+        let newCurrentSyllable = songTextArray[stanzaIndex][verseIndex][wordIndex][syllableIndex];
+        let text = newCurrentSyllable.text;
+        let time = newCurrentSyllable.time;
+        let syllableObject = {
+            stanza: stanzaIndex,
+            verse: verseIndex,
+            word: wordIndex,
+            syllable: syllableIndex,
+            text: newCurrentSyllable.text,
+            time: newCurrentSyllable.time,
+        };
+
+        
+        this.handleCurrentSyllableSelect( syllableObject );
+        
+    }
+
+
+    handleCurrentSyllableSelect = ( syllableObject ) => {
+        
+        console.log(syllableObject);
+        
+        let songTextArray = this.state.songTextArray;
+
+        // remove active from other syllables
+        songTextArray.map((stanza,i)=>{
+            stanza.map((verse,j)=>{
+                let words = verse.map((word,k)=>{
+                    let syllables = word.map((syllable,l)=>{
+                        syllable.active = null;
+                    })
+                })
+            })
+        })
+
+        let targetSyllable = songTextArray
+        [syllableObject.stanza]
+        [syllableObject.verse]
+        [syllableObject.word]
+        [syllableObject.syllable];
+
+        targetSyllable.active = 1;
+        
+        this.setState({
+            currentSyllable: syllableObject ,
+            songTextArray: songTextArray
+        })
+
+        console.log( this.state.songTextArray[syllableObject.stanza]
+            [syllableObject.verse]
+            [syllableObject.word]
+            [syllableObject.syllable].active);
+        
+
+    }
+
 
     handleMinuteChange = (e) => {
 
@@ -172,7 +392,7 @@ class SongCapture extends React.Component {
         
         newTime = Math.round(newTime * 100);
         newTime = newTime / 100;
-        
+
         currentSyllable.time = newTime;
         let songTextArray = this.state.songTextArray;
         songTextArray[ currentSyllable.stanza ][currentSyllable.verse][currentSyllable.word][currentSyllable.syllable].time = newTime;
@@ -183,7 +403,65 @@ class SongCapture extends React.Component {
 
     }
 
+
+
+
     drawSongText = ( songTextArray ) => {
+        
+        let html = songTextArray.map((stanza,i)=>{
+            
+            let verses = stanza.map((verse,j)=>{
+                let words = verse.map((word,k)=>{
+                    let syllables = word.map((syllable,l)=>{
+
+                        return (
+                            <div
+                            key={ `${i}-${j}-${k}-${l}` }
+                            >
+                            {syllable.text}
+                            </div>
+                        )
+                    })
+                    
+                    return (
+                        <span
+                        key={ `${i}-${j}-${k}` }
+                        className="word"
+                        >
+                            {syllables}
+                        </span>
+                    )
+                })
+                
+                return (
+                    <div
+                    key={ `${i}-${j}` }
+                    className="verse">
+                        {words}
+                    </div>
+                )
+            })
+            return (
+                <div
+                key={ `${i}` }
+                className="stanza">
+                    {verses}
+                </div>
+            )
+        });
+
+        return (
+            <React.Fragment>
+                {html}
+            </React.Fragment>
+        )
+
+
+    }
+
+
+
+    createSyllableButtons = ( songTextArray ) => {
         
         let html = songTextArray.map((stanza,i)=>{
             
@@ -199,9 +477,13 @@ class SongCapture extends React.Component {
                             verse={j}
                             word={k}
                             syllable={l}
+                            isActive={syllable.active}
+                            isAlreadySet={syllable.alreadySet}
+                            isError={syllable.error}
                             onClick={(e)=>this.handleSyllableClick(e)}
                             />
                         )
+
                     })
                     
                     return (

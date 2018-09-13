@@ -6,9 +6,9 @@ const SongTextDisplay = (props) => {
     return (
         <React.Fragment>
             
-            <h4>
-                Preview
-            </h4>
+            <h2>
+                Vista previa
+            </h2>
 
             <section className="text_result">
                 {props.text}

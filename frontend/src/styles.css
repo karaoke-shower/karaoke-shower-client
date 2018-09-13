@@ -55,5 +55,25 @@
 
 .text_result .syllable {
   outline: 1px solid grey;
-  font-size: 3rem;
+  font-size: 2rem;
+}
+
+
+.SongTextSyllableSelector .syllable {
+  background-color: #fff;
+  color: #000;
+}
+
+.SongTextSyllableSelector .syllable[is-active] {
+  background-color: #000;
+  color: #fff;
+}
+
+.SongTextSyllableSelector .syllable[is-already-set] {
+  background-color: green;
+}
+
+.SongTextSyllableSelector .syllable[is-error] {
+  background-color: red;
+  color: #fff;
 }
